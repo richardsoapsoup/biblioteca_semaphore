@@ -1,23 +1,32 @@
 import threading
-from usuario import usuario  # importa a função do outro arquivo
+import random
+import time
+from usuario import usuario
 
-# Lista de livros
-livros = ['Livro A', 'Livro B', 'Livro C', 'Livro D', 'Livro E']
+# Lista de livros disponíveis na biblioteca
+livros = ["Livro A", "Livro B", "Livro C"]
 
-# Semáforos para controle de acesso
-semaforos = {livro: threading.Semaphore(2) for livro in livros}
+# Semáforos para cada livro, permitindo até 2 acessos simultâneos
+semaforos = {}
+for livro in livros:
+    semaforos[livro] = threading.Semaphore(2)
 
 # Estatísticas
-leituras_por_livro = {livro: 0 for livro in livros}
+leituras_por_livro = {}
+for livro in livros:
+    leituras_por_livro[livro] = 0
 tempos_de_leitura = []
 
 # Lock para acesso seguro aos dados
 lock = threading.Lock()
 
+
 # Criar e iniciar threads
 threads = []
 for i in range(10):
-    t = threading.Thread(target=usuario, args=(i+1, livros, semaforos, leituras_por_livro, tempos_de_leitura, lock))
+    t = threading.Thread(target=usuario, args=(i+1, livros, semaforos,
+                                               leituras_por_livro,tempos_de_leitura
+                                               , lock))
     threads.append(t)
     t.start()
 
