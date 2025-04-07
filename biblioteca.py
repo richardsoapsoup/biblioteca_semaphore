@@ -1,42 +1,23 @@
 import threading
-import random
-import time
+from usuario import usuario  # importa a função do outro arquivo
 
-# Lista de livros disponíveis
+# Lista de livros
 livros = ['Livro A', 'Livro B', 'Livro C', 'Livro D', 'Livro E']
 
-# Dicionário com semáforos por livro (2 acessos simultâneos permitidos)
+# Semáforos para controle de acesso
 semaforos = {livro: threading.Semaphore(2) for livro in livros}
 
 # Estatísticas
 leituras_por_livro = {livro: 0 for livro in livros}
 tempos_de_leitura = []
 
-# Lock para atualizar estatísticas com segurança
+# Lock para acesso seguro aos dados
 lock = threading.Lock()
-
-def usuario(id_usuario):
-    livro_escolhido = random.choice(livros)
-    print(f"Usuário {id_usuario} tentando acessar '{livro_escolhido}'")
-
-    sem = semaforos[livro_escolhido]
-    
-    with sem:
-        print(f"Usuário {id_usuario} acessando '{livro_escolhido}'")
-        inicio = time.time()
-        tempo_leitura = random.uniform(1, 3)  # Simula entre 1 e 3 segundos de leitura
-        time.sleep(tempo_leitura)
-        fim = time.time()
-        print(f"Usuário {id_usuario} finalizou leitura de '{livro_escolhido}'")
-
-        with lock:
-            leituras_por_livro[livro_escolhido] += 1
-            tempos_de_leitura.append(fim - inicio)
 
 # Criar e iniciar threads
 threads = []
 for i in range(10):
-    t = threading.Thread(target=usuario, args=(i+1,))
+    t = threading.Thread(target=usuario, args=(i+1, livros, semaforos, leituras_por_livro, tempos_de_leitura, lock))
     threads.append(t)
     t.start()
 
